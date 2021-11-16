@@ -1,1 +1,1 @@
-# android-azure-auth-and-keyvault
+# Android App with Azure Auth + Key Vault Implementation
