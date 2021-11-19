@@ -1,0 +1,4 @@
+<resources>
+  <string name="app_name">Azure Auth + KeyVault</string>
+  <string name="login_title">Login</string>
+</resources>
