@@ -1,4 +1,5 @@
 <resources>
   <string name="app_name">Azure Auth + KeyVault</string>
   <string name="login_title">Login</string>
+  <string name="login_access_token_not_found">Access Token not found. Sign out and sign in again</string>
 </resources>

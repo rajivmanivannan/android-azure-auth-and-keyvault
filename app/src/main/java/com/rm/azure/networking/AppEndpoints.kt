@@ -11,6 +11,6 @@ interface AppEndpoints {
   @GET("api/GetSecret")
   fun getSecretFromMiddleware(
     @Header("Authorization") accessToken: String,
-    @Query("keyName") key: String
+    @Query("key") key: String
   ): Call<ResponseBody>
 }

@@ -1,4 +1,4 @@
-package com.rm.azure
+package com.rm.azure.view
 
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.android.volley.Response
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.microsoft.identity.client.AuthenticationCallback
 import com.microsoft.identity.client.IAccount
 import com.microsoft.identity.client.IAuthenticationResult
@@ -22,7 +24,10 @@ import com.microsoft.identity.client.exception.MsalException
 import com.microsoft.identity.client.exception.MsalServiceException
 import com.microsoft.identity.client.exception.MsalUiRequiredException
 import com.rm.azure.R.raw
+import com.rm.azure.R.string
 import com.rm.azure.databinding.FragmentLoginBinding
+import com.rm.azure.model.SecretFailureResponseModel
+import com.rm.azure.model.SecretSuccessResponseModel
 import com.rm.azure.networking.AppEndpoints
 import com.rm.azure.networking.MSGraphRequestWrapper
 import com.rm.azure.networking.MSGraphRequestWrapper.callGraphAPIUsingVolley
@@ -31,6 +36,7 @@ import okhttp3.ResponseBody
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
+import java.lang.reflect.Type
 import java.util.Locale
 
 /**
@@ -157,7 +163,15 @@ class LoginFragment : Fragment() {
       mSingleAccountApp!!.acquireTokenSilentAsync(scopes, mAccount!!.authority, authSilentCallback)
     })
     binding.btnCallUsingAzureFunction.setOnClickListener {
-      accessToken?.let { it -> callKeyVaultAzureFunctionAPI(it) }
+
+      if (accessToken.isNullOrEmpty()) {
+        Toast.makeText(context, getString(string.login_access_token_not_found), Toast.LENGTH_SHORT)
+          .show()
+      } else {
+        binding.txtLog.text = ""
+        callKeyVaultAzureFunctionAPI(accessToken!!)
+      }
+
     }
   }
 
@@ -338,10 +352,25 @@ class LoginFragment : Fragment() {
           call: Call<ResponseBody>,
           response: retrofit2.Response<ResponseBody>
         ) {
-          if (response.isSuccessful) {
-            binding.txtLog.text = response.body()
-              .toString()
+          val gson = Gson()
+          val result = if (response.isSuccessful) {
+            val type: Type = object : TypeToken<SecretSuccessResponseModel?>() {}.type
+            val secretSuccessResponseModel: SecretSuccessResponseModel =
+              gson.fromJson(
+                response.body()!!
+                  .charStream(), type
+              )
+            "${secretSuccessResponseModel.key} : ${secretSuccessResponseModel.secret}"
+          } else {
+            val type: Type = object : TypeToken<SecretFailureResponseModel?>() {}.type
+            val secretFailureResponseModel: SecretFailureResponseModel =
+              gson.fromJson(
+                response.errorBody()!!
+                  .charStream(), type
+              )
+            "${secretFailureResponseModel.error} : ${secretFailureResponseModel.message}"
           }
+          binding.txtLog.text = result
         }
       })
   }
