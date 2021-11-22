@@ -77,9 +77,9 @@ class LoginFragment : Fragment() {
       }
       mSingleAccountApp!!.signIn(requireActivity(), null, scopes, authInteractiveCallback)
     })
-    binding.btnRemoveAccount.setOnClickListener(View.OnClickListener {
+    binding.btnRemoveAccount.setOnClickListener {
       signOut()
-    })
+    }
     binding.btnCallGraphInteractively.setOnClickListener(View.OnClickListener {
       if (mSingleAccountApp == null) {
         return@OnClickListener
@@ -121,13 +121,12 @@ class LoginFragment : Fragment() {
     binding.btnCallUsingAzureFunction.setOnClickListener {
 
       if (accessToken.isNullOrEmpty()) {
-        mAccount = null
-        updateUI()
+        signOut()
         Toast.makeText(context, getString(string.login_access_token_not_found), Toast.LENGTH_SHORT)
           .show()
       } else {
         binding.txtLog.text = ""
-        callKeyVaultAzureFunctionAPI(accessToken!!)
+        callKeyVaultMiddlewareApi(accessToken!!)
       }
 
     }
@@ -310,9 +309,9 @@ class LoginFragment : Fragment() {
   //
 
   /**
-   * Make an HTTP request to  obtain secret from KeyVault
+   * Make an HTTP request to KeyVaultMiddlewareApi to obtain secret from KeyVault
    */
-  private fun callKeyVaultAzureFunctionAPI(accessToken: String) {
+  private fun callKeyVaultMiddlewareApi(accessToken: String) {
     val request = ServiceBuilder.buildService(AppEndpoints::class.java)
     request.getSecretFromMiddleware("Bearer $accessToken", "MySecret")
       .enqueue(object : Callback<ResponseBody> {
@@ -403,9 +402,6 @@ class LoginFragment : Fragment() {
     /**
      * Removes the signed-in account and cached tokens from this app (or device, if the device is in shared mode).
      */
-    /**
-     * Removes the signed-in account and cached tokens from this app (or device, if the device is in shared mode).
-     */
     mSingleAccountApp!!.signOut(object : SignOutCallback {
       override fun onSignOut() {
         mAccount = null
@@ -415,7 +411,6 @@ class LoginFragment : Fragment() {
         Toast.makeText(context, getString(string.login_signed_out), Toast.LENGTH_SHORT)
           .show()
       }
-
       override fun onError(exception: MsalException) {
         exception.message?.let { it1 -> displayError(it1) }
       }

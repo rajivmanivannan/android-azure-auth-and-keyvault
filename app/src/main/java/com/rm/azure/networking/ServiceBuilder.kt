@@ -6,9 +6,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ServiceBuilder {
-
-  // Azure Key Vault URL
-  private const val BASE_URL = "https://xxx.azurewebsites.net/"
+  // Azure Key Vault Middleware URL
+  private const val BASE_URL = "https://xxx.azurewebsites.net"
 
   private val interceptor = run {
     val httpLoggingInterceptor = HttpLoggingInterceptor()
