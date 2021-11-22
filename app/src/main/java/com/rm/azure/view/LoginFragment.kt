@@ -66,34 +66,9 @@ class LoginFragment : Fragment() {
     // Inflate the layout for this fragment
     binding = FragmentLoginBinding.inflate(inflater, container, false)
 
-
-    initializeUI()
-
-    // Creates a PublicClientApplication object with res/raw/auth_config_single_account.json
-    PublicClientApplication.createSingleAccountPublicClientApplication(
-      requireContext(),
-      raw.auth_config_single_account,
-      object : ISingleAccountApplicationCreatedListener {
-        override fun onCreated(application: ISingleAccountPublicClientApplication) {
-          /**
-           * This test app assumes that the app is only going to support one account.
-           * This requires "account_mode" : "SINGLE" in the config json file.
-           */
-          mSingleAccountApp = application
-          loadAccount()
-        }
-
-        override fun onError(exception: MsalException) {
-          exception.message?.let { displayError(it) }
-        }
-      })
-    return binding.root
-  }
-
-  /**
-   * Initializes UI and callbacks.
-   */
-  private fun initializeUI() {
+    /**
+     * Initializes UI and callbacks.
+     */
     val defaultGraphResourceUrl = MSGraphRequestWrapper.MS_GRAPH_ROOT_ENDPOINT
     binding.msgraphUrl.setText(defaultGraphResourceUrl)
     binding.btnSignIn.setOnClickListener(View.OnClickListener {
@@ -103,26 +78,7 @@ class LoginFragment : Fragment() {
       mSingleAccountApp!!.signIn(requireActivity(), null, scopes, authInteractiveCallback)
     })
     binding.btnRemoveAccount.setOnClickListener(View.OnClickListener {
-      if (mSingleAccountApp == null) {
-        return@OnClickListener
-      }
-      /**
-       * Removes the signed-in account and cached tokens from this app (or device, if the device is in shared mode).
-       */
-      /**
-       * Removes the signed-in account and cached tokens from this app (or device, if the device is in shared mode).
-       */
-      mSingleAccountApp!!.signOut(object : SignOutCallback {
-        override fun onSignOut() {
-          mAccount = null
-          updateUI()
-          showToastOnSignOut()
-        }
-
-        override fun onError(exception: MsalException) {
-          exception.message?.let { it1 -> displayError(it1) }
-        }
-      })
+      signOut()
     })
     binding.btnCallGraphInteractively.setOnClickListener(View.OnClickListener {
       if (mSingleAccountApp == null) {
@@ -165,6 +121,8 @@ class LoginFragment : Fragment() {
     binding.btnCallUsingAzureFunction.setOnClickListener {
 
       if (accessToken.isNullOrEmpty()) {
+        mAccount = null
+        updateUI()
         Toast.makeText(context, getString(string.login_access_token_not_found), Toast.LENGTH_SHORT)
           .show()
       } else {
@@ -173,6 +131,27 @@ class LoginFragment : Fragment() {
       }
 
     }
+
+    // Creates a PublicClientApplication object with res/raw/auth_config_single_account.json
+    PublicClientApplication.createSingleAccountPublicClientApplication(
+      requireContext(),
+      raw.auth_config_single_account,
+      object : ISingleAccountApplicationCreatedListener {
+        override fun onCreated(application: ISingleAccountPublicClientApplication) {
+          /**
+           * This test app assumes that the app is only going to support one account.
+           * This requires "account_mode" : "SINGLE" in the config json file.
+           */
+          mSingleAccountApp = application
+          loadAccount()
+        }
+
+        override fun onError(exception: MsalException) {
+          exception.message?.let { displayError(it) }
+        }
+      })
+
+    return binding.root
   }
 
   override fun onResume() {
@@ -216,7 +195,8 @@ class LoginFragment : Fragment() {
       ) {
         if (currentAccount == null) {
           // Perform a cleanup task as the signed-in account changed.
-          showToastOnSignOut()
+          binding.currentUser.text = ""
+          binding.txtLog.text = ""
         }
       }
 
@@ -334,7 +314,7 @@ class LoginFragment : Fragment() {
    */
   private fun callKeyVaultAzureFunctionAPI(accessToken: String) {
     val request = ServiceBuilder.buildService(AppEndpoints::class.java)
-    request.getSecretFromMiddleware("Bearer $accessToken", "MaxRegAuth")
+    request.getSecretFromMiddleware("Bearer $accessToken", "MySecret")
       .enqueue(object : Callback<ResponseBody> {
         override fun onFailure(
           call: Call<ResponseBody>,
@@ -407,19 +387,39 @@ class LoginFragment : Fragment() {
       binding.btnCallGraphInteractively.isEnabled = false
       binding.btnCallGraphSilently.isEnabled = false
       binding.btnCallUsingAzureFunction.isEnabled = false
-      binding.currentUser.text = "None"
+      binding.currentUser.text = getString(string.login_user_none)
     }
-    binding.deviceMode.text = if (mSingleAccountApp!!.isSharedDevice) "Shared" else "Non-shared"
+    binding.deviceMode.text = if (mSingleAccountApp!!.isSharedDevice) getString(
+      string.login_device_mode_shared
+    ) else getString(
+      string.login_device_mode_non_shared
+    )
   }
 
-  /**
-   * Updates UI when app sign out succeeds
-   */
-  private fun showToastOnSignOut() {
-    val signOutText = "Signed Out."
-    binding.currentUser.text = ""
-    Toast.makeText(context, signOutText, Toast.LENGTH_SHORT)
-      .show()
+  private fun signOut() {
+    if (mSingleAccountApp == null) {
+      return
+    }
+    /**
+     * Removes the signed-in account and cached tokens from this app (or device, if the device is in shared mode).
+     */
+    /**
+     * Removes the signed-in account and cached tokens from this app (or device, if the device is in shared mode).
+     */
+    mSingleAccountApp!!.signOut(object : SignOutCallback {
+      override fun onSignOut() {
+        mAccount = null
+        updateUI()
+        binding.currentUser.text = ""
+        binding.txtLog.text = ""
+        Toast.makeText(context, getString(string.login_signed_out), Toast.LENGTH_SHORT)
+          .show()
+      }
+
+      override fun onError(exception: MsalException) {
+        exception.message?.let { it1 -> displayError(it1) }
+      }
+    })
   }
 
   companion object {

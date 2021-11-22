@@ -1,5 +1,9 @@
 <resources>
   <string name="app_name">Azure Auth + KeyVault</string>
   <string name="login_title">Login</string>
-  <string name="login_access_token_not_found">Access Token not found. Sign out and sign in again</string>
+  <string name="login_access_token_not_found">Access Token not found. Sign in again</string>
+  <string name="login_signed_out">Signed Out</string>
+  <string name="login_user_none">None</string>
+  <string name="login_device_mode_shared">Shared</string>
+  <string name="login_device_mode_non_shared">Non-shared</string>
 </resources>
