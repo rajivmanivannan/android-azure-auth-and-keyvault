@@ -1,14 +1,12 @@
 package com.rm.azure.networking
 
+import com.rm.azure.AppConstants.RESOURCE_URL
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ServiceBuilder {
-  // Azure Key Vault Middleware URL
-  private const val BASE_URL = "https://xxx.azurewebsites.net"
-
   private val interceptor = run {
     val httpLoggingInterceptor = HttpLoggingInterceptor()
     httpLoggingInterceptor.apply {
@@ -20,7 +18,7 @@ object ServiceBuilder {
     .build()
 
   private val retrofit = Retrofit.Builder()
-    .baseUrl(BASE_URL)
+    .baseUrl(RESOURCE_URL)
     .addConverterFactory(GsonConverterFactory.create())
     .client(client)
     .build()

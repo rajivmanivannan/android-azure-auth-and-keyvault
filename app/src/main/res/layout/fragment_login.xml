@@ -51,7 +51,7 @@
             android:id="@+id/scope"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="user.read"
+            android:text=""
             android:textSize="12sp"
             />
 
@@ -80,7 +80,7 @@
           android:layout_height="wrap_content"
           android:layout_gravity="center_vertical"
           android:layout_weight="3"
-          android:text="MSGraph Resource URL"
+          android:text="Resource URL"
           android:textStyle="bold"
           />
 
@@ -92,7 +92,7 @@
           >
 
           <EditText
-            android:id="@+id/msgraph_url"
+            android:id="@+id/resource_url"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="12sp"
@@ -184,41 +184,6 @@
           android:text="Sign Out"
           />
       </LinearLayout>
-
-      <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Get Graph Data"
-        android:textStyle="bold"
-        />
-
-      <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal"
-        >
-
-        <Button
-          android:id="@+id/btn_callGraphInteractively"
-          android:layout_width="0dp"
-          android:layout_height="wrap_content"
-          android:layout_weight="5"
-          android:enabled="false"
-          android:text="Interactively"
-          />
-
-        <Button
-          android:id="@+id/btn_callGraphSilently"
-          android:layout_width="0dp"
-          android:layout_height="wrap_content"
-          android:layout_margin="@dimen/normal_margin"
-          android:layout_weight="5"
-          android:enabled="false"
-          android:text="Silently"
-          />
-      </LinearLayout>
-
       <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
